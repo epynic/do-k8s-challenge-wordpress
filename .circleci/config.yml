@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  envsubst: sawadashota/envsubst@volatile
-
 executors:
   docker-publisher:
     environment:
@@ -13,7 +10,6 @@ jobs:
   build-dockerhub:
     executor: docker-publisher
     steps:
-      - envsubst/install
       - checkout
       - setup_remote_docker
       - run:
