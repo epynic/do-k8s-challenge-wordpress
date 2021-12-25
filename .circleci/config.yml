@@ -47,7 +47,7 @@ jobs:
             pwd
             cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
-            git remote set-url origin https://epynic:${GITHUBHUB_PASS}@github.com/epynic/cdn-on-kubernetes.git
+            git remote set-url origin https://${GITHUBHUB_PASS}@github.com/epynic/cdn-on-kubernetes.git
             git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
             #git push origin main
             git push origin main
