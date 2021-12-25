@@ -39,7 +39,11 @@ jobs:
             git config user.email "epynic@gmail.com"
             git config user.name "Prasanha Kumar"
             git clone git@github.com:epynic/cdn-on-kubernetes.git
-            cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
+            echo " -------  "
+            cat /tmp/workspace/wordpress-deployment.yaml
+            echo " -- - -- - -- -- "
+            ls
+            cp /tmp/workspace/wordpress-deployment.yaml ./cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
             git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
             git push origin main
