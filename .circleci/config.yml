@@ -2,7 +2,6 @@ version: 2.1
 executors:
   docker-publisher:
     environment:
-      BUILD_NUM: CIRCLE_BUILD_NUM
       IMAGE_NAME: epynic/do-k8s-challenge-wordpress
     docker:
       - image: circleci/buildpack-deps:stretch
@@ -16,11 +15,12 @@ jobs:
       - run:
           name: Build  & Push Docker Image
           command: |
-            docker build -t $IMAGE_NAME:$BUILD_NUM .
+            docker build -t $IMAGE_NAME:${CIRCLE_BUILD_NUM} .
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $IMAGE_NAME:$BUILD_NUM
             echo "Update Image tag in k8s"
-            sed -e "s/\[[IMAGE_TAG]]/${BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
+            sed -e "s/\[[IMAGE_TAG]]/${CIRCLE_BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
+            cat wordpress-deployment.yaml
       - persist_to_workspace:
           root: .
           paths:
@@ -51,9 +51,9 @@ workflows:
           filters:
             branches:
               only: main
-      - push-manifest:
-          requires:
-            - build-dockerhub
-          filters:
-            branches:
-              only: main
+      # - push-manifest:
+      #     requires:
+      #       - build-dockerhub
+      #     filters:
+      #       branches:
+      #         only: main
