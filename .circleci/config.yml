@@ -20,11 +20,11 @@ jobs:
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $IMAGE_NAME:$BUILD_NUM"   
             echo "Update Image tag in k8s"
-            sed -e "s/\${IMAGE_TAG}/$IMAGE_NAME:$BUILD_NUM/" k8s-wordpress.yaml
+            sed -e "s/\[[IMAGE_TAG]]/${BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
       - persist_to_workspace:
           root: .
           paths:
-            - ./k8s-wordpress.yaml
+            - ./wordpress-deployment.yaml
           
   push-manifest:
     executor: docker-publisher
@@ -39,7 +39,7 @@ jobs:
             git config user.email "epynic@gmail.com"
             git config user.name "Prasanha Kumar"
             git clone git@github.com:epynic/cdn-on-kubernetes.git
-            mv /tmp/workspace/k8s-wordpress.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
+            mv /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
             git commit --allow-empty -am "Automatic commit from CircleCI [$BUILD_NUM]"
             git push origin main
