@@ -23,12 +23,12 @@ jobs:
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
             echo "Update Image tag in k8s"
-            envsubst < k8s-wordpress.yaml
-            cat wk8s-wordpress.yaml
+            sed -e "s/\${IMAGETAG}/${CIRCLE_BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
+            cat wordpress-deployment.yaml
       - persist_to_workspace:
           root: .
           paths:
-            - ./wk8s-wordpress.yaml
+            - ./wordpress-deployment.yaml
 
   push-manifest:
     executor: docker-publisher
