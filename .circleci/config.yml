@@ -21,13 +21,11 @@ jobs:
             docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
             echo "Updating Image tag in k8s"
             sed -e "s/\${IMAGETAG}/${CIRCLE_BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
-            cat wordpress-deployment.yaml
       - persist_to_workspace:
           root: .
           paths:
             - ./wordpress-deployment.yaml
-
-  push-manifest:
+  push-k8s-manifest:
     executor: docker-publisher
     steps:
       - attach_workspace:
@@ -53,7 +51,7 @@ workflows:
           filters:
             branches:
               only: main
-      - push-manifest:
+      - push-k8s-manifest:
           requires:
             - build-push-docker-image
           filters:
