@@ -38,7 +38,7 @@ jobs:
             echo "Committing to GitHub"
             git config --global user.email "epynic@gmail.com"
             git config --global user.name "Prasanha Kumar"
-            git clone git@github.com:epynic/cdn-on-kubernetes.git
+            git clone https://epynic:${GITHUBHUB_PASS}@github.com:epynic/cdn-on-kubernetes.git
             echo " -------  "
             cat /tmp/workspace/wordpress-deployment.yaml
             echo " -- - -- - -- -- "
@@ -48,9 +48,7 @@ jobs:
             cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
             git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
-            #git push origin main
-            echo https://epynic:${GITHUBHUB_PASS}@github.com:epynic/cdn-on-kubernetes.git
-            git push https://epynic:${GITHUBHUB_PASS}@github.com:epynic/cdn-on-kubernetes.git main
+            git push origin main
 
 workflows:
   version: 2
