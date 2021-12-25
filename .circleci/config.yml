@@ -7,7 +7,7 @@ executors:
       - image: circleci/buildpack-deps:stretch
 
 jobs:
-  build-dockerhub:
+  build-push-docker-image:
     executor: docker-publisher
     steps:
       - checkout
@@ -15,10 +15,11 @@ jobs:
       - run:
           name: Build  & Push Docker Image
           command: |
-            # docker build -t "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}" .
-            # echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            # docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
-            # echo "Update Image tag in k8s"
+            echo "Docker image build"
+            docker build -t "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}" .
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
+            echo "Updating Image tag in k8s"
             sed -e "s/\${IMAGETAG}/${CIRCLE_BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
             cat wordpress-deployment.yaml
       - persist_to_workspace:
@@ -35,34 +36,26 @@ jobs:
       - run:
           name: Update Image k8s
           command: |
-            echo "Committing to GitHub"
+            echo "Update k8s image tag"
             git config --global user.email "epynic@gmail.com"
             git config --global user.name "Prasanha Kumar"
             git clone git@github.com:epynic/cdn-on-kubernetes.git
-            echo " -------  "
-            cat /tmp/workspace/wordpress-deployment.yaml
-            echo " -- - -- - -- -- "
-            ls
-            echo " ========== "
-            pwd
             cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
             git remote set-url origin https://${GITHUBHUB_PASS}@github.com/epynic/cdn-on-kubernetes.git
             git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
-            #git push origin main
             git push origin main
-
 workflows:
   version: 2
-  build-master:
+  build-main:
     jobs:
-      - build-dockerhub:
+      - build-push-docker-image:
           filters:
             branches:
               only: main
       - push-manifest:
           requires:
-            - build-dockerhub
+            - build-push-docker-image
           filters:
             branches:
               only: main
