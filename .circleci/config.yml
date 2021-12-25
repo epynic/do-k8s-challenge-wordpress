@@ -1,44 +1,59 @@
 version: 2.1
-
-jobs:
-  build:
+executors:
+  docker-publisher:
     environment:
+      BUILD_NUM: CIRCLE_BUILD_NUM
       IMAGE_NAME: epynic/do-k8s-challenge-wordpress
     docker:
       - image: circleci/buildpack-deps:stretch
+
+jobs:
+  build-dockerhub:
+    executor: docker-publisher
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build Docker image
+          name: Build  & Push Docker Image
           command: |
-            docker build -t $IMAGE_NAME:latest .
+            docker build -t $IMAGE_NAME:$BUILD_NUM .
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
-            
-  publish-latest:
-    environment:
-      IMAGE_NAME: epynic/do-k8s-challenge-wordpress
-    docker:
-      - image: circleci/buildpack-deps:stretch
+            docker push $IMAGE_NAME:$BUILD_NUM"   
+            echo "Update image in k8s"
+            sed -e "s/\${IMAGE_TAG}/$IMAGE_NAME:$BUILD_NUM/" k8s-wordpress.yaml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./k8s-wordpress.yaml
+          
+  push-manifest:
+    executor: docker-publisher
     steps:
-      - setup_remote_docker
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
       - run:
-          name: Publish Docker Image to Docker Hub
+          name: Update Image k8s
           command: |
-            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            echo "Committing to GitHub"
+            git config user.email "epynic@gmail.com"
+            git config user.name "Prasanha Kumar"
+            git clone git@github.com:epynic/cdn-on-kubernetes.git
+            mv /tmp/workspace/k8s-wordpress.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
+            cd cdn-on-kubernetes 
+            git commit --allow-empty -am "Automatic commit from CircleCI [$BUILD_NUM]"
+            git push origin main
 workflows:
   version: 2
   build-master:
     jobs:
-      - build:
+      - build-dockerhub:
           filters:
             branches:
               only: main
-#       - publish-latest:
-#           requires:
-#             - build
-#           filters:
-#             branches:
-#               only: main
+      - push-manifest:
+          requires:
+            - build-dockerhub
+          filters:
+            branches:
+              only: main
