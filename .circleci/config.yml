@@ -15,18 +15,17 @@ jobs:
       - run:
           name: Build  & Push Docker Image
           command: |
-            echo $IMAGE_NAME:${CIRCLE_BUILD_NUM}
-            # docker build -t $IMAGE_NAME:${CIRCLE_BUILD_NUM} .
-            # echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            # docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
+            docker build -t "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}" .
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push "${IMAGE_NAME}:${CIRCLE_BUILD_NUM}"
             echo "Update Image tag in k8s"
-            sed -e "s/\[[IMAGE_TAG]]/${CIRCLE_BUILD_NUM}/" k8s-wordpress.yaml > wordpress-deployment.yaml
-            cat wordpress-deployment.yaml
+            envsubst < k8s-wordpress.yaml
+            cat wk8s-wordpress.yaml
       - persist_to_workspace:
           root: .
           paths:
-            - ./wordpress-deployment.yaml
-          
+            - ./wk8s-wordpress.yaml
+            
   push-manifest:
     executor: docker-publisher
     steps:
