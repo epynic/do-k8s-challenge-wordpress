@@ -18,7 +18,7 @@ jobs:
           command: |
             docker build -t $IMAGE_NAME:$BUILD_NUM .
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:$BUILD_NUM"   
+            docker push $IMAGE_NAME:$BUILD_NUM
             echo "Update Image tag in k8s"
             sed -e "s/\${IMAGE_TAG}/$IMAGE_NAME:$BUILD_NUM/" k8s-wordpress.yaml
       - persist_to_workspace:
