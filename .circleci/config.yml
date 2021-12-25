@@ -39,9 +39,9 @@ jobs:
             git config user.email "epynic@gmail.com"
             git config user.name "Prasanha Kumar"
             git clone git@github.com:epynic/cdn-on-kubernetes.git
-            mv /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
+            cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
-            git commit --allow-empty -am "Automatic commit from CircleCI [$BUILD_NUM]"
+            git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
             git push origin main
 workflows:
   version: 2
@@ -51,9 +51,9 @@ workflows:
           filters:
             branches:
               only: main
-      # - push-manifest:
-      #     requires:
-      #       - build-dockerhub
-      #     filters:
-      #       branches:
-      #         only: main
+      - push-manifest:
+          requires:
+            - build-dockerhub
+          filters:
+            branches:
+              only: main
