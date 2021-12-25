@@ -49,6 +49,8 @@ jobs:
             cd cdn-on-kubernetes 
             git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
             git push origin main
+            git push https://epynic:${GITHUBHUB_PASS}$@github.com:epynic/cdn-on-kubernetes.git main
+
 workflows:
   version: 2
   build-master:
