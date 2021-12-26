@@ -38,10 +38,10 @@ jobs:
             git config --global user.email "epynic@gmail.com"
             git config --global user.name "Prasanha Kumar"
             git clone git@github.com:epynic/cdn-on-kubernetes.git
-            cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/web_server/wordpress-deployment.yaml
+            cp /tmp/workspace/wordpress-deployment.yaml cdn-on-kubernetes/k8s/webserver/wordpress-deployment.yaml
             cd cdn-on-kubernetes 
             git remote set-url origin https://${GITHUBHUB_PASS}@github.com/epynic/cdn-on-kubernetes.git
-            git commit --allow-empty -am "Automatic commit from CircleCI:$CIRCLE_BUILD_NUM"
+            git commit --allow-empty -am "Automatic commit CircleCI-wordpress:$CIRCLE_BUILD_NUM"
             git push origin main
 workflows:
   version: 2
